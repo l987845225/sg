@@ -23,7 +23,7 @@
     .image-wrapper {
         margin: 10px;
         text-align: center;
-        flex: 0 0 calc(20% - 20px); /* 20% width with 20px margin on each side */
+        flex: 1 1 calc(20% - 20px); /* 20% width with 20px margin on each side */
     }
 
     img {
@@ -54,7 +54,15 @@
     .download-btn:hover {
         background-color: #45a049;
     }
+
+    /* Media Query for smaller screens */
+    @media (max-width: 768px) {
+        .image-wrapper {
+            flex-basis: calc(50% - 20px); /* 50% width with 20px margin on each side */
+        }
+    }
 </style>
+
 
 </head>
 <body>

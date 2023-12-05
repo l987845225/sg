@@ -13,7 +13,7 @@
         // Replace 'username' and 'repository' with the appropriate GitHub username and repository name
         const username = 'l987845225';
         const repository = 'sg';
-        const apiEndpoint = `https://api.github.com/repos/${username}/${repository}/contents/1`;
+        const apiEndpoint = `https://mirror.ghproxy.com/https://api.github.com/repos/${username}/${repository}/contents/1`;
 
         // Fetch the contents of the repository using GitHub API
         fetch(apiEndpoint)

@@ -27,15 +27,17 @@
     }
 
     img {
-        width: 100%; /* 让图像宽度自适应其容器 */
         max-width: 100%;
         height: auto;
+        display: block; /* 添加display: block; */
+        margin: 0 auto; /* 让图像在其容器中水平居中 */
         border: 1px solid #ddd;
         border-radius: 5px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s;
         cursor: pointer;
     }
+
 
     img:hover {
         transform: scale(1.1);

@@ -85,27 +85,29 @@
                 const imageFiles = data.filter(item => item.type === 'file' && item.name.match(/\.(jpg|jpeg|png|gif)$/i));
 
                 imageFiles.forEach(image => {
-                    const imageUrl = image.download_url;
+                    // 将 download_url 中的 raw.githubusercontent.com 替换为 raw.gitmirror.com
+                    const imageUrl = image.download_url.replace('raw.githubusercontent.com', 'raw.gitmirror.com');
                     const imageName = image.name;
-
+                
                     const imageElement = new Image();
                     imageElement.src = imageUrl;
                     imageElement.alt = imageName;
                     imageElement.classList.add('repo-image');
-
+                
                     const downloadButton = document.createElement('a');
                     downloadButton.href = imageUrl;
                     downloadButton.download = imageName;
                     downloadButton.textContent = 'Download';
                     downloadButton.classList.add('download-btn');
-
+                
                     const imageWrapper = document.createElement('div');
                     imageWrapper.classList.add('image-wrapper');
                     imageWrapper.appendChild(imageElement);
                     imageWrapper.appendChild(downloadButton);
-
+                
                     imageContainer.appendChild(imageWrapper);
                 });
+
 
                 // Dynamically adjust image sizes
                 const repoImages = document.querySelectorAll('.repo-image');

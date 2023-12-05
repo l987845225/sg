@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8">
+      <title>读取HTML文件同级的图片</title>
+    </head>
+    <body>
+        <h1>读取HTML文件同级的图片</h1>
+        <p>以下是HTML文件同级的图片：</p>
+        <div id="imageContainer"></div>
+
+      <script>
+            // 获取当前网页的路径
+            var currentPath = window.location.pathname;
+            var folderPath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+
+            // 获取图片容器的HTML元素
+            var imageContainer = document.getElementById('imageContainer');
+
+            // 读取HTML文件同级的所有图片
+            var fs = require('fs');
+            var files = fs.readdirSync(folderPath);
+            for (var i = 0; i< files.length; i++) {
+                var fileName = files[i];
+                if (fileName.endsWith('.jpg') || fileName.endsWith('.png')) {
+                    // 创建一个包含图片和下载按钮的容器
+                    var imageContainer = document.createElement('div');
+
+                    // 创建一个图片元素
+                    var image = document.createElement('img');
+                    image.src = folderPath + fileName;
+                    image.alt = fileName;
+
+                    // 将图片添加到容器中
+                    imageContainer.appendChild(image);
+
+                    // 创建一个下载按钮
+                    var downloadLink = document.createElement('a');
+                    downloadLink.href = image.src;
+                    downloadLink.download = '下载图片';
+                    downloadLink.textContent = '下载图片';
+
+                    // 将下载按钮添加到容器中
+                    imageContainer.appendChild(downloadLink);
+
+                    // 将容器添加到图片容器中
+                    document.getElementById('imageContainer').appendChild(imageContainer);
+                }
+            }
+        </script>
+    </body>
+</html>

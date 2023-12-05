@@ -82,7 +82,7 @@
             .then(data => {
                 const imageContainer = document.getElementById('image-container');
 
-                const imageFiles = data.filter(item => item.type === 'file' && item.name.match(/\.(jpg|jpeg|png|gif)$/i));
+                const imageFiles = data.filter(item => item.type === 'file' && item.name.match(/\.(jpg|jpeg|png|gif|webp)$/i));
 
                 imageFiles.forEach(image => {
                     const imageUrl = image.download_url;

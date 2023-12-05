@@ -73,39 +73,51 @@
     <div id="image-container"></div>
 
     <script>
-        // Replace 'username' and 'repository' with the appropriate GitHub username and repository name
         const username = 'l987845225';
         const repository = 'sg';
         const apiEndpoint = `https://api.github.com/repos/${username}/${repository}/contents/1`;
 
-        // Fetch the contents of the repository using GitHub API
         fetch(apiEndpoint)
             .then(response => response.json())
             .then(data => {
                 const imageContainer = document.getElementById('image-container');
 
-                // Filter only the image files (you might need to adjust this based on your repository content)
                 const imageFiles = data.filter(item => item.type === 'file' && item.name.match(/\.(jpg|jpeg|png|gif)$/i));
 
-                // Generate HTML for each image and add a download button
                 imageFiles.forEach(image => {
                     const imageUrl = image.download_url;
                     const imageName = image.name;
 
-                    const imageElement = document.createElement('img');
+                    const imageElement = new Image();
                     imageElement.src = imageUrl;
                     imageElement.alt = imageName;
+                    imageElement.classList.add('repo-image');
 
                     const downloadButton = document.createElement('a');
                     downloadButton.href = imageUrl;
                     downloadButton.download = imageName;
                     downloadButton.textContent = 'Download';
+                    downloadButton.classList.add('download-btn');
 
                     const imageWrapper = document.createElement('div');
+                    imageWrapper.classList.add('image-wrapper');
                     imageWrapper.appendChild(imageElement);
                     imageWrapper.appendChild(downloadButton);
 
                     imageContainer.appendChild(imageWrapper);
+                });
+
+                // Dynamically adjust image sizes
+                const repoImages = document.querySelectorAll('.repo-image');
+                repoImages.forEach(img => {
+                    img.onload = function() {
+                        const containerWidth = img.parentElement.offsetWidth;
+                        const imageWidth = img.width;
+
+                        if (imageWidth > containerWidth) {
+                            img.style.width = '100%';
+                        }
+                    };
                 });
             })
             .catch(error => console.error('Error fetching repository content:', error));

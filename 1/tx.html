@@ -88,83 +88,120 @@
 </head>
 <body>
     <h1></h1>
-	<span><img src="https://www.freeimg.cn/i/2023/12/06/656fce1ac0908.png">
-	<b>手机扫码进入</b>	
-	</span>
+    <span><img src="https://www.freeimg.cn/i/2023/12/06/656fce1ac0908.png">
+    <b>手机扫码进入</b>    
+    </span>
     <div id="image-container"></div>
 
     <script>
-    // 弹窗函数
-    function showConfirmationDialog() {
-        return new Promise((resolve) => {
-            const confirmation = window.confirm("图片太多，建议连接wifi。点击确认继续加载图片。");
+        // 弹窗函数
+        function showConfirmationDialog(totalSizeMB) {
+            return new Promise((resolve) => {
+                const confirmation = window.confirm(`图片太多，建议连接wifi。点击确认继续加载图片。总大小: ${totalSizeMB.toFixed(2)} MB`);
 
-            if (confirmation) {
-                resolve();
-            } else {
-                // 用户点击取消时的处理（可选）
-                // 可以在这里添加自定义逻辑
-                console.log("用户取消加载图片");
-            }
-        });
-    }
+                if (confirmation) {
+                    resolve();
+                } else {
+                    // 用户点击取消时的处理（可选）
+                    // 可以在这里添加自定义逻辑
+                    console.log("用户取消加载图片");
+                }
+            });
+        }
 
-    // 在页面加载时显示确认弹窗
-    showConfirmationDialog()
-        .then(() => {
-            // 用户点击确认后，继续执行原有的图片加载逻辑
-            const username = 'l987845225';
-            const repository = 'sg';
-            const apiEndpoint = `https://api.github.com/repos/${username}/${repository}/contents/1`;
+        // 在页面加载时显示确认弹窗
+        showConfirmationDialog(0) // 初始总大小为0
+            .then(() => {
+                let totalSize = 0;
 
-            fetch(apiEndpoint)
-                .then(response => response.json())
-                .then(data => {
-                    const imageContainer = document.getElementById('image-container');
+                // 用户点击确认后，继续执行原有的图片加载逻辑
+                const username = 'l987845225';
+                const repository = 'sg';
+                const apiEndpoint = `https://api.github.com/repos/${username}/${repository}/contents/1`;
 
-                    const imageFiles = data.filter(item => item.type === 'file' && item.name.match(/\.(jpg|jpeg|png|gif|webp)$/i));
+                fetch(apiEndpoint)
+                    .then(response => response.json())
+                    .then(data => {
+                        const imageContainer = document.getElementById('image-container');
 
-                    imageFiles.forEach(image => {
-                        // 将 download_url 中的 raw.githubusercontent.com 替换为 raw.gitmirror.com
-                        const imageUrl = image.download_url.replace('raw.githubusercontent.com', 'raw.gitmirror.com');
-                        const imageName = image.name;
+                        const imageFiles = data.filter(item => item.type === 'file' && item.name.match(/\.(jpg|jpeg|png|gif|webp)$/i));
 
-                        const imageElement = new Image();
-                        imageElement.src = imageUrl;
-                        imageElement.alt = imageName;
-                        imageElement.classList.add('repo-image');
+                        imageFiles.forEach(image => {
+                            // 将 download_url 中的 raw.githubusercontent.com 替换为 raw.gitmirror.com
+                            const imageUrl = image.download_url.replace('raw.githubusercontent.com', 'raw.gitmirror.com');
+                            const imageName = image.name;
 
-                        const downloadButton = document.createElement('a');
-                        downloadButton.href = imageUrl;
-                        downloadButton.download = imageName;
-                        downloadButton.textContent = 'Download';
-                        downloadButton.classList.add('download-btn');
+                            const imageElement = new Image();
+                            imageElement.src = imageUrl;
+                            imageElement.alt = imageName;
+                            imageElement.classList.add('repo-image');
 
-                        const imageWrapper = document.createElement('div');
-                        imageWrapper.classList.add('image-wrapper');
-                        imageWrapper.appendChild(imageElement);
-                        imageWrapper.appendChild(downloadButton);
+                            const downloadButton = document.createElement('a');
+                            downloadButton.href = imageUrl;
+                            downloadButton.download = imageName;
+                            downloadButton.textContent = 'Download';
+                            downloadButton.classList.add('download-btn');
 
-                        imageContainer.appendChild(imageWrapper);
-                    });
+                            const imageWrapper = document.createElement('div');
+                            imageWrapper.classList.add('image-wrapper');
+                            imageWrapper.appendChild(imageElement);
+                            imageWrapper.appendChild(downloadButton);
 
-                    // Dynamically adjust image sizes
-                    const repoImages = document.querySelectorAll('.repo-image');
-                    repoImages.forEach(img => {
-                        img.onload = function () {
-                            const containerWidth = img.parentElement.offsetWidth;
-                            const imageWidth = img.width;
+                            imageContainer.appendChild(imageWrapper);
 
-                            if (imageWidth > containerWidth) {
-                                img.style.width = '100%';
-                            }
-                        };
-                    });
-                })
-                .catch(error => console.error('Error fetching repository content:', error));
-        })
-        .catch(error => console.error('Error displaying confirmation dialog:', error));
-</script>
+                            // 创建缩略图
+                            createThumbnail(imageElement, imageUrl);
 
+                            // 累加图片大小
+                            totalSize += image.size;
+                        });
+
+                        // Dynamically adjust image sizes
+                        const repoImages = document.querySelectorAll('.repo-image');
+                        repoImages.forEach(img => {
+                            img.onload = function () {
+                                const containerWidth = img.parentElement.offsetWidth;
+                                const imageWidth = img.width;
+
+                                if (imageWidth > containerWidth) {
+                                    img.style.width = '100%';
+                                }
+                            };
+                        });
+
+                        // 显示确认弹窗，传递总大小（以MB为单位）
+                        showConfirmationDialog(totalSize / (1024 * 1024));
+                    })
+                    .catch(error => console.error('Error fetching repository content:', error));
+            })
+            .catch(error => console.error('Error displaying confirmation dialog:', error));
+
+        // 创建缩略图函数
+        function createThumbnail(imageElement, imageUrl) {
+            const thumbnailCanvas = document.createElement('canvas');
+            const ctx = thumbnailCanvas.getContext('2d');
+
+            imageElement.onload = function () {
+                const thumbnailWidth = 20; // 设置缩略图宽度
+                const thumbnailHeight = (imageElement.height / imageElement.width) * thumbnailWidth;
+
+                thumbnailCanvas.width = thumbnailWidth;
+                thumbnailCanvas.height = thumbnailHeight;
+
+                ctx.drawImage(imageElement, 0, 0, thumbnailWidth, thumbnailHeight);
+
+                const thumbnailImage = new Image();
+                thumbnailImage.src = thumbnailCanvas.toDataURL('image/jpeg');
+
+                // 添加缩略图到页面
+                const thumbnailWrapper = document.createElement('div');
+                thumbnailWrapper.classList.add('thumbnail-wrapper');
+                thumbnailWrapper.appendChild(thumbnailImage);
+                imageElement.parentElement.appendChild(thumbnailWrapper);
+            };
+        }
+    </script>
 </body>
+
+
 </html>
